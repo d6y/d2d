@@ -33,14 +33,16 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 fn doubling_time(factor: f32, ts: &[i32]) -> Vec<isize> {
-    let scan_forward = |(t_index, &t)| -> Option<isize> {
+    let scan_forward = |t_index, &t| -> Option<isize> {
         let doubling: i32 = ((t as f32) * factor).round() as i32;
         let halfing: i32 = ((t as f32) / factor).round() as i32;
         let start = t_index + 1;
         num_steps(doubling, halfing, &ts[start..])
     };
 
-    ts.iter().enumerate().filter_map(scan_forward).collect()
+    let step_count = |(t_index, t)| -> isize { scan_forward(t_index, t).unwrap_or(0) };
+
+    ts.iter().enumerate().map(step_count).collect()
 }
 
 fn num_steps(min_increase: i32, min_decrease: i32, ts: &[i32]) -> Option<isize> {
